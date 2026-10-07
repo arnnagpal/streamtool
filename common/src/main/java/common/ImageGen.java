@@ -138,18 +138,18 @@ public class ImageGen {
 
         JSONArray completions = comp.getJSONArray("completions");
 
-        BufferedImage title = new BufferedImage(853, 100, 2);
-        String titleTxt = "Completions";
+        BufferedImage title = new BufferedImage(1000, 100, 2);
+        String titleTxt = "Seed results";
         String seedNum = comp.getInt("seedNum") + "/" + comp.getInt("seedCount");
 
         if (true) {
             Graphics2D g = title.createGraphics();
             g.setFont(font80);
             g.setBackground(main);
-            g.clearRect(0, 0, 640, 100);
+            g.clearRect(0, 0, 695, 100);
             g.drawString(titleTxt, 10, 82);
-            g.clearRect(650, 0, 203, 100);
-            g.drawString(seedNum, 660, 82);
+            g.clearRect(705, 0, 203, 100);
+            g.drawString(seedNum, 715, 82);
             g.dispose();
         }
 
@@ -164,7 +164,7 @@ public class ImageGen {
             JSONObject o = completions.getJSONObject(i);
             String name = o.getString("name");
             String time = o.getString("time");
-            String points = o.getString("points");
+            String points = o.optString("points", "");
 
             int height = width/5;
             int margin = width/60;

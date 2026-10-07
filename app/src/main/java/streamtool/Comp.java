@@ -98,7 +98,6 @@ public class Comp {
         if (seedNumber == 0) returnData.put("seedNum", data.currentSeed);
         returnData.put("seedCount", Main.getSeedcount(data.leagueNumber));
 
-        // TODO REMOVE
         try {
             BufferedWriter w = new BufferedWriter(new FileWriter(Paths.get("lb_data", "completions.json").toFile()));
             w.write(returnData.toString());

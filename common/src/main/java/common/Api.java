@@ -30,6 +30,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Api {
+
+    // returns false if the skin has been downloaded within 6 hours
+    public static boolean updateSkin(String username) {
+        File pr = Paths.get("skins", username + ".properties").toFile();
+        if (!pr.exists()) return true;
+
+        Long dlTime = Api.readJSON(pr).optLong("dlTime", 0);
+        if (dlTime + 21600000 > System.currentTimeMillis()) return false;
+
+        return true;
+    }
+
     public static void dlSkin(String username) throws MalformedURLException, IOException, URISyntaxException {
         File dlFile = Paths.get("download.json").toFile();
 
@@ -90,8 +102,9 @@ public class Api {
             if (model.equals("slim")) slim = true;
         }
 
-        JSONObject slimValue = new JSONObject();
-        slimValue.put("slim", slim);
+        JSONObject skPr = new JSONObject();
+        skPr.put("slim", slim);
+        skPr.put("dlTime", System.currentTimeMillis());
         
         String url = skin.getString("url");
 
@@ -104,7 +117,7 @@ public class Api {
         out.close();
 
         BufferedWriter w = new BufferedWriter(new FileWriter(skinProperties));
-        w.write(slimValue.toString());
+        w.write(skPr.toString());
         w.close();
     }
 

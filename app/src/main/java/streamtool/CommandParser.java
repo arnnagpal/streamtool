@@ -104,6 +104,13 @@ public class CommandParser {
                     if (splitCommand[1].toLowerCase().equals("false")) result.put("value", 2); // false -> unmute mic and discord (if enabled)
                 } else result.put("value", 0); // no argument -> toggle mute (if enabled)
                 break;
+            case "showtop":
+                result.put("command", "showtop");
+                if (splitCommand.length > 1) {
+                    if (splitCommand[1].toLowerCase().equals("true")) result.put("value", 1); // true -> mute mic and discord (if enabled)
+                    if (splitCommand[1].toLowerCase().equals("false")) result.put("value", 2); // false -> unmute mic and discord (if enabled)
+                } else result.put("value", 0); // no argument -> toggle mute (if enabled)
+                break;
             case "update":
                 result.put("command", "update");
                 result.put("value", 0); // no argument / unknown argument -> update once
@@ -114,7 +121,7 @@ public class CommandParser {
                     if (splitCommand[1].toLowerCase().equals("nomsg")) result.put("value", 4);
                 }
                 break;
-            case "split", "splits":
+            case "split", "splits", "adv", "advancement":
                 result.put("command", "splits"); // print splits
                 break;
             case "show":

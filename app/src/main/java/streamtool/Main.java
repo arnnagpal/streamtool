@@ -23,6 +23,7 @@ import common.FileSelect;
 public class Main {
 
     static Long abDelay = 0L;
+    static boolean top = true;
 
     public static void main(String[] args) throws URISyntaxException, InterruptedException, IOException {
 
@@ -44,6 +45,7 @@ public class Main {
         run.paths = (JSONObject) run.obsLayout.get("paths");
 
         abDelay = run.obsLayout.optLong("switchDelay", 0L);
+        run.mostPercent = run.obsLayout.optBoolean("mostPercent", false);
 
         run.imagePath = (String) run.paths.get("heads");
         run.seediconPath = (String) run.paths.get("seed_icons");
@@ -66,7 +68,9 @@ public class Main {
 
         run.client.send("{\"op\": 1, \"d\": {\"rpcVersion\": 1, \"eventSubscriptions\": 0}}");
 
-        Data data = new Data();
+        Data data = new Data(run.mostPercent);
+
+        if (run.mostPercent) run.mp = new MostPercentLeaderboard(data, 5);
 
         run.hostName = "";
 
@@ -233,6 +237,8 @@ public class Main {
             pl.put("id", players[i].id);
             pl.put("name", players[i].name);
             pl.put("twitch", players[i].twitch);
+            pl.put("displayName", players[i].displayName);
+            pl.put("pronouns", players[i].pronouns);
             pl.put("live", players[i].live);
             pl.put("history", players[i].history);
             playerList.put(pl);
@@ -248,6 +254,14 @@ public class Main {
         object.put("currentSeed", data.currentSeed);
         object.put("host", run.hostName);
         object.put("matchIds", idList);
+
+        if (run.mostPercent) {
+            JSONArray mpIds = new JSONArray();
+            for (int i = 0; i < run.mp.ids.size(); i++) {
+                mpIds.put(run.mp.ids.get(i));
+            }
+            object.put("mpIds", mpIds);
+        }
 
         BufferedWriter w = new BufferedWriter(new FileWriter(file));
         w.write(object.toString());
@@ -349,21 +363,28 @@ class Player {
     String uuid;
     int id;
 
+    String displayName;
+    String pronouns;
+
     JSONArray history;
 
     int lb_points = 0;
     boolean lb_played = false;
     int lb_comps = 0;
     int lb_time = 0;
+    int lb_adv = 0;
 
-    int hideSplit = -1; // not hide = -1, hide = {0, 1, 2, 3, 4, 5, 6} for the specific split, once they get the next one they're shown again
+    int hideSplit = -1; // not hide = -1, hide = {0, 1, 2, 3, 4, 5, 6, 7} for the specific split, once they get the next one they're shown again
     
     boolean playing = false;
+    int advCount = 0;
 
-    public Player(String name, String twitch, int id, JSONArray history) {
+    public Player(String name, String twitch, int id, JSONArray history, int headsize, String displayName, String pronouns) {
         this.name = name;
         this.twitch = twitch;
         this.id = id;
+        this.displayName = displayName;
+        this.pronouns = pronouns;
 
         this.history = history;
 
@@ -371,8 +392,8 @@ class Player {
         if (twitch.equals("")) live = false; else live = true;
 
         try {
-            Api.dlSkin(name);
-            Api.getHead(name, 100);
+            if (Api.updateSkin(name)) Api.dlSkin(name);
+            Api.getHead(name, headsize);
         } catch (Exception e) {}
     }
 }
@@ -421,6 +442,9 @@ class RuntimeData {
     boolean muted;
 
     boolean spectating = false;
+
+    boolean mostPercent;
+    MostPercentLeaderboard mp;
 
     ClientHandler client;
     FileSelect fs;

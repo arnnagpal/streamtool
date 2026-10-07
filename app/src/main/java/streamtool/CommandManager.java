@@ -21,11 +21,15 @@ public class CommandManager {
         this.run = run;
     }
 
-    public int executeDelayed(JSONObject commandObject, Long delay) {
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {}
-        return execute(commandObject);
+    public void executeDelayed(JSONObject commandObject, Long delay) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {}
+                execute(commandObject);
+            }
+        }).start();
     }
 
     public int execute(JSONObject commandObject) {
@@ -44,6 +48,7 @@ public class CommandManager {
             case "reload": return reloadCommand();
             case "override": return overrideCommand(commandObject);
             case "mute": return muteCommand(commandObject);
+            case "showtop": return showtopCommand(commandObject);
             case "import": return importCommand(commandObject);
             case "order": return orderCommand(commandObject);
             case "scene": return sceneCommand(commandObject);
@@ -81,21 +86,41 @@ public class CommandManager {
 
     int testCommand() {
 
-        JSONObject lb = new JSONObject();
-        JSONArray pl = new JSONArray();
+        MostPercentLeaderboard mp = new MostPercentLeaderboard(data, 6);
 
-        for (int i = 0; i < data.players.length; i++) {
-            JSONObject o = new JSONObject();
-            o.put("name", data.players[i].name);
-            o.put("perfFraction", "0/1");
-            pl.put(o);
-        }
+        mp.addMatch(13981770);
+        ImageGen.completions(mp.getResult(1));
+        ImageGen.leaderboard(mp.getLeaderboard(), 1, 6);
 
-        lb.put("players", pl);
-        lb.put("promotions", 0);
-        lb.put("demotions", 0);
+        run.scanner.next();
 
-        ImageGen.averages(Leaderboard.genAvgLeaderboard(lb, data, run, true));
+        mp.addMatch(13981891);
+        ImageGen.completions(mp.getResult(2));
+        ImageGen.leaderboard(mp.getLeaderboard(), 2, 6);
+
+        run.scanner.next();
+
+        mp.addMatch(13981992);
+        ImageGen.completions(mp.getResult(3));
+        ImageGen.leaderboard(mp.getLeaderboard(), 3, 6);
+
+        run.scanner.next();
+
+        mp.addMatch(13982099);
+        ImageGen.completions(mp.getResult(4));
+        ImageGen.leaderboard(mp.getLeaderboard(), 4, 6);
+
+        run.scanner.next();
+
+        mp.addMatch(13982185);
+        ImageGen.completions(mp.getResult(5));
+        ImageGen.leaderboard(mp.getLeaderboard(), 5, 6);
+
+        run.scanner.next();
+
+        mp.addMatch(13982272);
+        ImageGen.completions(mp.getResult(6));
+        ImageGen.leaderboard(mp.getLeaderboard(), 6, 6);
 
         return 1;
     }
@@ -161,16 +186,29 @@ public class CommandManager {
 
         data.clearPlayers();
         JSONArray array = object.getJSONArray("players");
+
+        int headsize = 100;
+        if (run.mostPercent) headsize = 130;
+
         for (int i = 0; i < array.length(); i++) {
             JSONObject o = array.getJSONObject(i);
             String name = o.getString("name");
             String twitch = o.getString("twitch");
+            String displayName = o.getString("displayName");
+            String pronouns = o.getString("pronouns");
             int id = o.getInt("id");
             JSONArray history = o.optJSONArray("history", new JSONArray());
             System.out.println(id + " " + name);
-            Player player = new Player(name, twitch, id, history);
+            Player player = new Player(name, twitch, id, history, headsize, displayName, pronouns);
             player.live = o.getBoolean("live");
             data.addPlayer(player);
+        }
+
+        if (run.mostPercent) {
+            JSONArray a = object.getJSONArray("mpIds");
+            for (int i = 0; i < a.length(); i++) {
+                run.mp.addMatch(a.getInt(i));
+            }
         }
 
         System.out.println("Import complete");
@@ -250,12 +288,29 @@ public class CommandManager {
         return 1;
     }
 
+    int showtopCommand(JSONObject commandObject) {
+        int value = commandObject.getInt("value");
+
+        if (value == 0) {
+            if (Main.top) Main.top = false; else Main.top = true;
+        }
+        
+        if (value == 1) Main.top = true;
+        if (value == 2) Main.top = false;
+
+        System.out.println("Show top: " + Main.top);
+        return 1;
+    }
+
     int importCommand(JSONObject commandObject) {
         run.needSave = true;
         System.out.println("Select file");
         File file = run.fs.select();
 
         if (file == null) return 0;
+
+        int headsize = 100;
+        if (run.mostPercent) headsize = 130;
 
         if (file.exists()) {
             data.clearPlayers();
@@ -264,10 +319,13 @@ public class CommandManager {
                 JSONObject o = array.getJSONObject(i);
                 String name = o.getString("ign");
                 String twitch = Main.fixLink(o.getString("twitch_username"));
+                String displayName = o.getString("display_name");
+                String pronouns = o.optString("pronouns", "");
+
                 JSONArray history = o.optJSONArray("history", new JSONArray());
                 int id = data.players.length;
                 System.out.println(id + " " + name);
-                Player player = new Player(name, twitch, id, history);
+                Player player = new Player(name, twitch, id, history, headsize, displayName, pronouns);
                 data.addPlayer(player);
             }
             System.out.println("Import complete");
@@ -646,12 +704,24 @@ public class CommandManager {
                 }
                 int matchId = ids[0];
                 System.out.println("Downloading seed " + seedNumber + " from id " + matchId);
+
+                if (run.mostPercent) {
+                    mostPercentStuff(matchId);
+                    return 1;
+                }
+
                 boolean result = Leaderboard.downloadSeed(seedNumber, matchId, run);
                 if (result) return 1; else return 0;
             case "dl":
                 int seedNumber2 = commandObject.getInt("seed");
                 int matchId2 = commandObject.getInt("match");
                 System.out.println("Downloading seed " + seedNumber2 + " from id " + matchId2);
+
+                if (run.mostPercent) {
+                    mostPercentStuff(matchId2);
+                    return 1;
+                }
+
                 boolean result2 = Leaderboard.downloadSeed(seedNumber2, matchId2, run);
                 if (result2) return 1; else return 0;
             case "id":
@@ -674,6 +744,16 @@ public class CommandManager {
         }
 
         return 0;
+    }
+
+    void mostPercentStuff(int matchId) {
+        System.out.println("Generating completion images");
+        run.mp.addMatch(matchId);
+        ImageGen.completions(run.mp.getResult(run.mp.ids.size()));
+        ImageGen.leaderboard(run.mp.getLeaderboard(), run.mp.ids.size(), run.mp.seedcount);
+
+        run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"completions\", \"overlay\": true, \"inputSettings\": {\"file\":\"" + run.imageGenPath + "completions.png" + "\"}}}}");
+        run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"leaderboard\", \"overlay\": true, \"inputSettings\": {\"file\":\"" + run.imageGenPath + "leaderboard.png" + "\"}}}}");
     }
 
     int leaderboardCommand(JSONObject commandObject) {
@@ -764,11 +844,11 @@ public class CommandManager {
     }
 
     int completionsCommand(JSONObject commandObject) {
-
         run.timer.stop();
         run.autoUpdate.stop();
 
         int value = commandObject.getInt("value");
+
         JSONObject comp = Comp.getCompletions(data.players, value, run, data);
 
         if (comp == null) {
@@ -788,6 +868,20 @@ public class CommandManager {
 
     int splitsCommand() {
         System.out.println("Splits");
+
+        if (run.mostPercent) {
+            try {
+                data.updateAdv();
+            } catch (Exception e) {
+                System.out.println("Exception: Failed to update splits");
+                return 0;
+            }
+
+            data.printAdv();
+            return 1;
+        }
+
+
         try {
             data.updateSplits();
         } catch (Exception e) {
@@ -812,7 +906,16 @@ public class CommandManager {
         switch (value) {
             case 0:
                 if (msg) System.out.println("Updating by splits");
-                povs = data.topSplits();
+
+                if (run.mostPercent) {
+                    if (Main.top) {
+                        povs = data.topAdv();
+                    } else {
+                        povs = data.bottomAdv();
+                    }
+                } else {
+                    povs = data.topSplits();
+                }
 
                 if (povs.length > 0) {
                     int safety = povs.length;

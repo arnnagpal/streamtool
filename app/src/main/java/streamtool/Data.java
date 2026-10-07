@@ -1,5 +1,9 @@
 package streamtool;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,17 +24,20 @@ public class Data {
     int weekNumber = 0;
 
     int currentSeed = 0;
+    int headsize = 100;
 
     enum SplitType {
         nether,
         bastion,
         fortress,
+        firstrod,
         blind,
         stronghold,
         end,
         finish,
         forfeit,
         other,
+        reset,
         none
     }
 
@@ -209,6 +216,70 @@ public class Data {
         return result;
     }
 
+    String[] topAdv() { // returns top players (up to 4) by advancement count
+        try {
+            updateAdv();
+        } catch (Exception e) {
+            return new String[0];
+        }
+
+        List<Player> playerList = new ArrayList<>();
+
+        for (int i = 0; i < players.length; i++) if (players[i].playing & players[i].live) {
+            Player player = players[i];
+            if (player != null) playerList.add(player);
+        }
+
+        Collections.sort(playerList, new Comparator<Player>() {
+            public int compare(Player a, Player b) {
+                return b.advCount - a.advCount;
+            }
+        });
+
+        int count = playerList.size();
+        if (count > 4) count = 4;
+
+        String[] result = new String[count];
+
+        for (int i = 0; i < count; i++) {
+            result[i] = playerList.get(i).name;
+        }
+
+        return result;
+    }
+
+    String[] bottomAdv() { // returns top players (up to 4) by advancement count
+        try {
+            updateAdv();
+        } catch (Exception e) {
+            return new String[0];
+        }
+
+        List<Player> playerList = new ArrayList<>();
+
+        for (int i = 0; i < players.length; i++) if (players[i].playing & players[i].live) {
+            Player player = players[i];
+            if (player != null) playerList.add(player);
+        }
+
+        Collections.sort(playerList, new Comparator<Player>() {
+            public int compare(Player a, Player b) {
+                return a.advCount - b.advCount;
+            }
+        });
+
+        int count = playerList.size();
+        if (count > 4) count = 4;
+
+        String[] result = new String[count];
+
+        for (int i = 0; i < count; i++) {
+            result[i] = playerList.get(i).name;
+        }
+
+        return result;
+    }
+
     JSONObject currentSplit(String playerName) {
 
         JSONObject result = new JSONObject();
@@ -227,20 +298,26 @@ public class Data {
         }
 
         for (int i = 0; i < end.length; i++) if (end[i].player != null & end[i].player.equals(playerName)) {
-            result.put("split", 6);
+            result.put("split", 7);
             result.put("time", end[i].time);
             return result;
         }
 
         for (int i = 0; i < stronghold.length; i++) if (stronghold[i].player != null & stronghold[i].player.equals(playerName)) {
-            result.put("split", 5);
+            result.put("split", 6);
             result.put("time", stronghold[i].time);
             return result;
         }
 
         for (int i = 0; i < blind.length; i++) if (blind[i].player != null & blind[i].player.equals(playerName)) {
-            result.put("split", 4);
+            result.put("split", 5);
             result.put("time", blind[i].time);
+            return result;
+        }
+
+        for (int i = 0; i < firstrod.length; i++) if (firstrod[i].player != null & firstrod[i].player.equals(playerName)) {
+            result.put("split", 4);
+            result.put("time", firstrod[i].time);
             return result;
         }
 
@@ -316,6 +393,14 @@ public class Data {
             if (live) System.out.println("LIVE " + p.id + " " + blind[i].player + " BLIND " + Main.getTimeString(blind[i].time, true)); else System.out.println("     " + blind[i].player + " BLIND " + Main.getTimeString(blind[i].time, true));
         }
 
+        for (int i = 0; i < firstrod.length; i++) if (!alreadyListed(firstrod[i].player)) {
+            list(firstrod[i].player);
+            Player p = this.getPlayer(firstrod[i].player);
+            boolean live = false;
+            if (p != null) live = p.live;
+            if (live) System.out.println("LIVE " + p.id + " " + firstrod[i].player + " FIRST ROD " + Main.getTimeString(firstrod[i].time, true)); else System.out.println("     " + firstrod[i].player + " FIRST ROD " + Main.getTimeString(firstrod[i].time, true));
+        }
+
         for (int i = 0; i < fortress.length; i++) if (!alreadyListed(fortress[i].player)) {
             list(fortress[i].player);
             Player p = this.getPlayer(fortress[i].player);
@@ -346,25 +431,64 @@ public class Data {
         }
     }
 
-    SplitType ident(JSONObject o) {
+    void printAdv() {
+        ArrayList<Player> pl = new ArrayList<>();
+        for (int i = 0; i < players.length; i++) {
+            Player p = players[i];
+            if (p != null && p.playing) {
+                pl.add(p);
+            }
+        }
 
+        Collections.sort(pl, new Comparator<Player>() {
+            public int compare(Player a, Player b) {
+                return b.advCount - a.advCount;
+            }
+        });
+
+        for (int i = 0; i < pl.size(); i++) {
+            String s = "";
+            if (pl.get(i).live) s = s + "LIVE ";
+            s = s + pl.get(i).name + " " + pl.get(i).advCount;
+            System.out.println(s);
+        }
+    }
+
+    SplitType ident(JSONObject o) {
         String type = o.getString("type");
 
         if (type.equals("nether.root")) return SplitType.nether;
         if (type.equals("nether.find_bastion")) return SplitType.bastion;
         if (type.equals("nether.find_fortress")) return SplitType.fortress;
+        if (type.equals("nether.obtain_blaze_rod")) return SplitType.firstrod;
         if (type.equals("projectelo.timeline.blind_travel")) return SplitType.blind;
         if (type.equals("story.follow_ender_eye")) return SplitType.stronghold;
         if (type.equals("story.enter_the_end")) return SplitType.end;
         if (type.equals("projectelo.timeline.complete")) return SplitType.finish;
         if (type.equals("projectelo.timeline.forfeit")) return SplitType.forfeit;
+        if (type.equals("projectelo.timelime.reset")) return SplitType.reset;
 
         return SplitType.other;
+    }
+
+    boolean isAdv(JSONObject o) {
+        String type = o.getString("type");
+
+        if (type.contains("projectelo")) return false;
+
+        if (type.contains("story.")) return true;
+        if (type.contains("nether.")) return true;
+        if (type.contains("end.")) return true;
+        if (type.contains("adventure.")) return true;
+        if (type.contains("husbandry.")) return true;
+
+        return false;
     }
 
     Split[] nether;
     Split[] bastion;
     Split[] fortress;
+    Split[] firstrod;
     Split[] blind;
     Split[] stronghold;
     Split[] end;
@@ -376,6 +500,11 @@ public class Data {
         clearSplits();
     }
 
+    public Data(boolean mostPercent) {
+        this();
+        if (mostPercent) headsize = 130;
+    }
+
     void clearPlayers() {
         players = new Player[0];
     }
@@ -384,11 +513,18 @@ public class Data {
         nether = new Split[0];
         bastion = new Split[0];
         fortress = new Split[0];
+        firstrod = new Split[0];
         blind = new Split[0];
         stronghold = new Split[0];
         end = new Split[0];
         finish = new Split[0];
         forfeit = new Split[0];
+    }
+
+    void clearAdv() {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i] != null) players[i].advCount = 0;
+        }
     }
 
     void addSplit(SplitType type, Split split) {
@@ -411,6 +547,9 @@ public class Data {
                 break;
             case fortress:
                 addSplit(fortress, split, type);
+                break;
+            case firstrod:
+                addSplit(firstrod, split, type);
                 break;
             case nether:
                 addSplit(nether, split, type);
@@ -445,6 +584,40 @@ public class Data {
         loadUuid(players);
         clearSplits();
         loadSplits(timelines);
+    }
+
+    void updateAdv() throws Exception {
+        JSONObject spectate = Api.readJSON(Paths.get("spectate_match.json").toFile());
+
+        if (spectate == null) throw new Exception();
+
+        JSONArray players = (JSONArray) spectate.opt("players");
+        JSONArray timelines = (JSONArray) spectate.opt("timelines");
+
+        if (players == null || timelines == null) throw new Exception();
+
+        updatePlaying(spectate);
+        loadUuid(players);
+        clearAdv();
+        loadAdv(timelines);
+        writeAdvToFiles(players);
+    }
+
+    void writeAdvToFiles(JSONArray players) {
+        for (int i = 0; i < players.length(); i++) {
+            Player p = getPlayer(players.getJSONObject(i).getString("nickname"));
+            File folder = Paths.get("adv_count").toFile();
+            if (!folder.exists()) folder.mkdirs();
+
+            if (p != null) {
+                File playerFile = Paths.get("adv_count", p.name + ".txt").toFile();
+                try {
+                    BufferedWriter w = new BufferedWriter(new FileWriter(playerFile));
+                    w.write(p.advCount + " adv");
+                    w.close();
+                } catch (IOException e) {}
+            }
+        }
     }
 
     void loadUuid(JSONArray pls) {
@@ -482,6 +655,22 @@ public class Data {
         }
     }
 
+    void loadAdv(JSONArray timelines) {
+        for (int i = 0; i < timelines.length(); i++) {
+            JSONObject o = (JSONObject) timelines.get(i);
+            Data.SplitType type = ident(o);
+            String uuid = o.getString("uuid");
+            boolean adv = isAdv(o);
+            String name = getName(uuid);
+
+            if (type == Data.SplitType.reset) {
+                if (getPlayer(name) != null) getPlayer(name).advCount = 0;
+            }
+
+            if (adv && getPlayer(name) != null) getPlayer(name).advCount++;
+        }
+    }
+
     void addSplit(Split[] array, Split split, SplitType type) {
         Split[] newArray = new Split[array.length + 1];
         for (int i = 0; i < array.length; i++) newArray[i] = array[i];
@@ -498,6 +687,9 @@ public class Data {
                 break;
             case fortress:
                 fortress = newArray;
+                break;
+            case firstrod:
+                firstrod = newArray;
                 break;
             case nether:
                 nether = newArray;
@@ -538,7 +730,7 @@ public class Data {
     }
 
     void addPlayer(String name, String twitch) {
-        Player player = new Player(name, twitch, players.length, new JSONArray());
+        Player player = new Player(name, twitch, players.length, new JSONArray(), headsize, name, "");
         addPlayer(player);
     }
 

@@ -1,6 +1,5 @@
 package streamtool;
 
-import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 
@@ -51,12 +50,16 @@ public class ClientHandler {
         updatePort();
         int feedPort = portRange + currentPort;
         String feedLink = "http://localhost:" + feedPort;
-        String name = player.name;
-        String image = imagePath + name + "-2d.png";
+        String name = player.displayName;
+        String pronouns = player.pronouns;
+        String image = imagePath + player.name + "-2d.png";
         String twitch = player.twitch;
 
+        int headSize = 100;
+        if (run.mostPercent) headSize = 130;
+
         try {
-            Api.getHead(name, 100);
+            Api.getHead(player.name, headSize);
         } catch (Exception e) {}
         
         if (allowReplace) {
@@ -81,7 +84,7 @@ public class ClientHandler {
 
         feeds[place - 1].newFeed(new Streamlink(twitch, feedPort));
 
-        new ABSwitch(place, Main.abDelay, run, feeds[place - 1].feed, name, image, feedLink);
+        new ABSwitch(place, Main.abDelay, run, feeds[place - 1].feed, name, image, feedLink, pronouns, player.name);
 
         return 1;
     }
@@ -98,11 +101,15 @@ public class ClientHandler {
         updatePort();
         int feedPort = portRange + currentPort;
         String feedLink = "http://localhost:" + feedPort;
-        String name = player.name;
-        String image = imagePath + name + "-2d.png";
+        String name = player.displayName;
+        String image = imagePath + player.name + "-2d.png";
+        String pronouns = player.pronouns;
+
+        int headSize = 100;
+        if (run.mostPercent) headSize = 130;
 
         try {
-            Api.getHead(name, 100);
+            Api.getHead(player.name, headSize);
         } catch (Exception e) {}
 
         String twitch = player.twitch;
@@ -113,7 +120,7 @@ public class ClientHandler {
 
         feeds[place - 1].newFeed(new Streamlink(twitch, feedPort));
 
-        new ABSwitch(place, 0L, run, feeds[place - 1].feed, name, image, feedLink);
+        new ABSwitch(place, 0L, run, feeds[place - 1].feed, name, image, feedLink, pronouns, player.name);
 
         return 1;
     }
@@ -143,18 +150,25 @@ class ABSwitch implements Runnable {
 
     String name;
     String image;
+    String pronouns;
+    String ign;
 
     String feedName;
     String nameSlot;
+    String pronounSlot;
     String headSlot;
+
+    String advSlot;
 
     boolean feedA;
     boolean feedB;
 
-    public ABSwitch(int pov, Long wait, RuntimeData run, boolean feed, String name, String image, String feedLink) {
+    public ABSwitch(int pov, Long wait, RuntimeData run, boolean feed, String name, String image, String feedLink, String pronouns, String ign) {
         this.pov = pov;
         this.name = name;
         this.image = image;
+        this.pronouns = pronouns;
+        this.ign = ign;
 
         requests = new ArrayList<String>();
 
@@ -165,6 +179,8 @@ class ABSwitch implements Runnable {
 
         nameSlot = "pov" + pov + "name";
         headSlot = "head" + pov;
+        pronounSlot = "pronouns" + pov;
+        advSlot = "adv" + pov;
 
         feedA = feed;
         if (feedA) feedB = false; else feedB = true;
@@ -179,12 +195,17 @@ class ABSwitch implements Runnable {
             Thread.sleep(wait);
         } catch (InterruptedException e) {}
 
-        // change the head and name
+        // change head, name, pronouns
         run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"" + headSlot + "\", \"overlay\": true, \"inputSettings\": {\"file\":\"" + image + "\"}}}}");
         run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"" + nameSlot + "\", \"overlay\": true, \"inputSettings\": {\"text\":\"" + name + "\"}}}}");
+        run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"" + pronounSlot + "\", \"overlay\": true, \"inputSettings\": {\"text\":\"" + pronouns + "\"}}}}");
 
         // set feed visibility
         run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetSceneItemEnabled\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + "p" + pov + "\", \"sceneItemId\": " + (run.scenes.getJSONObject("abIds")).getJSONObject("p" + pov).getInt("a") + ", \"sceneItemEnabled\": " + feedA + "}}}");
         run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetSceneItemEnabled\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + "p" + pov + "\", \"sceneItemId\": " + (run.scenes.getJSONObject("abIds")).getJSONObject("p" + pov).getInt("b") + ", \"sceneItemEnabled\": " + feedB + "}}}");
+
+        if (run.mostPercent) {
+            run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"" + advSlot + "\", \"overlay\": true, \"inputSettings\": {\"text_file\":\"/home/me/MCRL Streaming/streamtool/adv_count/" + ign + ".txt\"}}}}");
+        }
     }
 }

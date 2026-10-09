@@ -54,6 +54,7 @@ public class Data {
     
     void clearList() {
         listed = new String[0];
+        list("$RESET");
     }
 
     boolean alreadyListed(String name) {
@@ -521,6 +522,22 @@ public class Data {
         forfeit = new Split[0];
     }
 
+    void clearSplitsForPlayer(String name) {
+        clearHelper(name, nether);
+        clearHelper(name, bastion);
+        clearHelper(name, fortress);
+        clearHelper(name, firstrod);
+        clearHelper(name, blind);
+        clearHelper(name, stronghold);
+        clearHelper(name, end);
+    }
+
+    private void clearHelper(String name, Split[] s) {
+        for (int i = 0; i < s.length; i++) if (s[i].player.equals(name)) {
+            s[i].player = "$RESET";
+        }
+    }
+
     void clearAdv() {
         for (int i = 0; i < players.length; i++) {
             if (players[i] != null) players[i].advCount = 0;
@@ -536,6 +553,9 @@ public class Data {
         if (player == null) return;
 
         switch (type) {
+            case reset:
+                clearSplitsForPlayer(split.player);
+                break;
             case bastion:
                 addSplit(bastion, split, type);
                 break;

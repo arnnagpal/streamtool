@@ -226,7 +226,7 @@ public class Data {
 
         List<Player> playerList = new ArrayList<>();
 
-        for (int i = 0; i < players.length; i++) if (players[i].playing & players[i].live) {
+        for (int i = 0; i < players.length; i++) if (players[i].playing && players[i].live) {
             Player player = players[i];
             if (player != null) playerList.add(player);
         }
@@ -467,6 +467,7 @@ public class Data {
         if (type.equals("story.enter_the_end")) return SplitType.end;
         if (type.equals("projectelo.timeline.complete")) return SplitType.finish;
         if (type.equals("projectelo.timeline.forfeit")) return SplitType.forfeit;
+        if (type.equals("projectelo.timeline.eliminate")) return SplitType.forfeit;
         if (type.equals("projectelo.timelime.reset")) return SplitType.reset;
 
         return SplitType.other;

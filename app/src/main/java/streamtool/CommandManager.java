@@ -683,6 +683,7 @@ public class CommandManager {
             case "clear":
                 System.out.println("Clearing match data");
                 run.clearMatchIds(Main.getSeedcount(data.leagueNumber));
+                if (run.mostPercent) run.mp.clearAllData();
                 return 1;
             case "host":
                 run.hostName = commandObject.getString("name");

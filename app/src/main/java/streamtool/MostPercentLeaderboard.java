@@ -149,9 +149,12 @@ public class MostPercentLeaderboard {
         JSONObject d = match.getJSONObject("data");
 
         JSONObject winner = new JSONObject();
-        String winnerName = data.getName(d.getJSONObject("result").getString("uuid"));
-        winner.put("name", winnerName);
-        players.put(winner);
+        String winnerName = data.getName(d.getJSONObject("result").optString("uuid", null));
+
+        if (winnerName != null) {
+            winner.put("name", winnerName);
+            players.put(winner);
+        }
 
         JSONArray timelines = d.getJSONArray("timelines");
 

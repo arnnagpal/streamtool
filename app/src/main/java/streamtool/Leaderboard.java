@@ -228,7 +228,10 @@ public class Leaderboard {
         leaderboard.put("players", sortedLeaderboard);
 
         leaderboard.put("promotions", getPromotions(data.leagueNumber, sortedLeaderboard.length()));
+        if (run.overrides[0] > 0) leaderboard.put("promotions", run.overrides[0]);
+
         leaderboard.put("demotions", getDemotions(data.leagueNumber, sortedLeaderboard.length()));
+        if (run.overrides[1] > 0) leaderboard.put("demotions", run.overrides[1]);
 
         File file = Paths.get("lb_data", "leaderboard.json").toFile();
 
@@ -263,13 +266,8 @@ public class Leaderboard {
 
     static int getDemotions(int leagueNumber, int playerCount) {
         if (leagueNumber == 6) return 0;
-        if (leagueNumber == 1) {
-            int result = playerCount * 20 + 50;
-            return result / 100;
-        } else {
-            int result = playerCount * 15 + 50;
-            return result / 100;
-        }
+        int result = playerCount * 15 + 50;
+        return result / 100;
     }
 
     public static JSONObject genAvgLeaderboard(JSONObject lb, Data data, RuntimeData run, boolean initial) {

@@ -104,6 +104,13 @@ public class CommandParser {
                     if (splitCommand[1].toLowerCase().equals("false")) result.put("value", 2); // false -> unmute mic and discord (if enabled)
                 } else result.put("value", 0); // no argument -> toggle mute (if enabled)
                 break;
+            case "mainspec":
+                result.put("command", "mainspec");
+                if (splitCommand.length > 1) {
+                    if (splitCommand[1].toLowerCase().equals("true")) result.put("value", 1); // true -> mute mic and discord (if enabled)
+                    if (splitCommand[1].toLowerCase().equals("false")) result.put("value", 2); // false -> unmute mic and discord (if enabled)
+                } else result.put("value", 0); // no argument -> toggle mute (if enabled)
+                break;
             case "showtop":
                 result.put("command", "showtop");
                 if (splitCommand.length > 1) {
@@ -193,6 +200,17 @@ public class CommandParser {
                                 String s2 = splitCommand[2];
                                 IntParser ip = parseInt(s2);
                                 if (ip.success && ip.i >= 1 && ip.i <= 4) {
+                                    result.put("var", ip.i);
+                                }
+                            }
+                            break;
+                        case "gs", "mainspec", "gamespec":
+                            result.put("value", "gs");
+                            result.put("var", 3);
+                            if (splitCommand.length > 2) {
+                                String s2 = splitCommand[2];
+                                IntParser ip = parseInt(s2);
+                                if (ip.success && ip.i >= 1 && ip.i <= 3) {
                                     result.put("var", ip.i);
                                 }
                             }

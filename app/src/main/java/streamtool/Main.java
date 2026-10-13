@@ -420,6 +420,8 @@ class RuntimeData {
 
     boolean stop = false;
 
+    boolean mainspec = false;
+
     int[] overrides;
 
     JSONObject obsLayout;

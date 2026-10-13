@@ -72,7 +72,7 @@ public class CommandManager {
             case "unhide": return unhideCommand();
             case "snapshot": return snapshotCommand(commandObject);
             case "refresh": return refreshCommand(commandObject);
-            
+            case "mainspec": return mainspecCommand(commandObject);
         }
 
 
@@ -285,6 +285,19 @@ public class CommandManager {
         if (value == 2) run.muted = false;
 
         Main.setMute(run.client, run.audio, run.muted);
+        return 1;
+    }
+
+    int mainspecCommand(JSONObject commandObject) {
+        int value = commandObject.getInt("value");
+
+        if (value == 0) {
+            if (run.mainspec) run.mainspec = false; else run.mainspec = true;
+        }
+        
+        if (value == 1) run.mainspec = true;
+        if (value == 2) run.mainspec = false;
+
         return 1;
     }
 
@@ -545,19 +558,26 @@ public class CommandManager {
                 run.commandManager.execute(run.commandParser.getCommand("mute false"));
                 run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + run.scenes.get("spectatorScene") + "\"}}}");
                 return 1;
-
             case "game":
                 System.out.println("Players");
                 run.commandManager.execute(run.commandParser.getCommand("mute false"));
                 int pov_count = commandObject.getInt("var");
                 run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gameplayScenes")).get("gameplay" + pov_count) + "\"}}}");
                 return 1;
-
+            case "gs":
+                System.out.println("Players + spec");
+                run.commandManager.execute(run.commandParser.getCommand("mute false"));
+                int pv = commandObject.getInt("var");
+                run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gsScenes")).get("gs" + pv) + "\"}}}");
+                return 1;
             case "update":
                 int pov_count2 = commandObject.getInt("var");
-                run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gameplayScenes")).get("gameplay" + pov_count2) + "\"}}}");
+                if (run.mainspec) {
+                    run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gsScenes")).get("gs" + pov_count2) + "\"}}}");
+                } else {
+                    run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gameplayScenes")).get("gameplay" + pov_count2) + "\"}}}");
+                }
                 return 1;
-
             case "leaderboard":
                 System.out.println("Leaderboard");
                 run.commandManager.execute(run.commandParser.getCommand("mute false"));
@@ -921,6 +941,8 @@ public class CommandManager {
                 if (povs.length > 0) {
                     int safety = povs.length;
                     if (safety > 4) safety = 4;
+
+                    if (run.mainspec && safety == 4) safety = 3;
 
                     for (int i = 0; i < safety; i++) {
                         run.client.showPlayer(data.getPlayer(povs[i]), i + 1, false);

@@ -8,13 +8,19 @@
 		"multiweekScene": "AVERAGES",
 		"nextseedScene": "NEXT SEED",
 		"seedlistScene": "SEED ORDER",
-		"spectatorScene": "SPECTATOR POV",
+		"spectatorScene": "SPEC CAM",
 		"gameplayScenes": {
 			"gameplay1": "MAIN 1",
 			"gameplay2": "MAIN 2",
 			"gameplay3": "MAIN 3",
 			"gameplay4": "MAIN 4"
 		},
+		"gsScenes": {
+			"gs1": "MAIN 1 SPEC",
+			"gs2": "MAIN 2 SPEC",
+			"gs3": "MAIN 3 SPEC"
+		},
+
 		"abIds": {
 			"p1": {"a": 17, "b": 27},
 			"p2": {"a": 21, "b": 28},
@@ -36,7 +42,7 @@
 		"gen_images": "/home/me/MCRL Streaming/streamtool/gen_images/"
 	},
 	"portRange": 7000,
-	"switchDelay": 5000,
+	"switchDelay": 4500,
 	"bgIds": {
 		"l1": 5,
 		"l2": 8,
@@ -44,5 +50,6 @@
 		"l4": 27,
 		"l5": 33,
 		"l6": 41
-	}
+	},
+	"mostPercent": false
 }

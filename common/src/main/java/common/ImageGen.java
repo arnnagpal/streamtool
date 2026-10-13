@@ -402,7 +402,7 @@ public class ImageGen {
             if (perf.equals("0.0%")) {
                 if (lb.optBoolean("initial", false)) {
                     perf = "None";
-                } else {
+                } else if (demotions > 0) {
                     g.setBackground(demote);
                 }
             }

@@ -27,7 +27,7 @@ public class ImageGen {
     static Font font80 = new Font("Mojang", 1, 80);
     static Font font64 = new Font("Mojang", 1, 64);
 
-    public static void seedOrder(ArrayList<String> seeds, int current) {
+    public static void seedOrder(ArrayList<String> seeds, int current, boolean seedDone) {
 
         System.out.println("Current: " + current);
         System.out.println("Seeds: " + seeds.size());
@@ -72,7 +72,7 @@ public class ImageGen {
             BufferedImage block = new BufferedImage(900, 150, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = block.createGraphics();
 
-            if (i < current - 1) {
+            if (i < current - 1 || (seedDone && i <= current - 1)) {
                 g.setBackground(bg);
             } else if (i == current - 1) {
                 g.setBackground(next);
@@ -85,7 +85,7 @@ public class ImageGen {
 
             g.drawString(typeTxt, 160, 131);
 
-            if (i < current - 1) {
+            if (i < current - 1 || (seedDone && i <= current - 1)) {
                 g.setColor(used);
                 g.fillRect(0, 0, 900, 150);
             }

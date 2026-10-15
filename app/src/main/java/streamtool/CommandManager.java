@@ -22,12 +22,20 @@ public class CommandManager {
     }
 
     public void executeDelayed(JSONObject commandObject, Long delay) {
+        executeDelayed(commandObject, delay, false);
+    }
+
+    public void executeDelayed(JSONObject commandObject, Long delay, boolean resetInput) {
         new Thread(new Runnable() {
             public void run() {
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {}
                 execute(commandObject);
+                if (resetInput) {
+                    System.out.println();
+                    System.out.print("> ");
+                }
             }
         }).start();
     }
@@ -140,6 +148,8 @@ public class CommandManager {
 
     int startCommand() {
         int result = 0;
+
+        Main.seedDone = false;
 
         // a script to start timer and enable auto-update
 
@@ -502,7 +512,7 @@ public class CommandManager {
             String seed_type = (String) this_seed.get("type");
             gen.add(seed_type);
         }
-        ImageGen.seedOrder(gen, data.currentSeed);
+        ImageGen.seedOrder(gen, data.currentSeed, Main.seedDone);
 
         // TODO copy this line to other parts
         run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"seedorder\", \"overlay\": true, \"inputSettings\": {\"file\":\"" + run.imageGenPath + "seedorder.png" + "\"}}}}");
@@ -615,6 +625,8 @@ public class CommandManager {
     int nextCommand() {
         run.needSave = true;
 
+        Main.seedDone = false;
+
         Main.unHide(data);
 
         if (data.currentSeed < Main.getSeedcount(data.leagueNumber)) data.currentSeed++; else {
@@ -623,7 +635,11 @@ public class CommandManager {
         }
 
         // switch to seed order scene
+        System.out.println("Highlighting next seed on the list");
         run.commandManager.execute(run.commandParser.getCommand("order show"));
+
+        System.out.println("Switching to next seed scene in 10 seconds");
+        run.commandManager.executeDelayed(run.commandParser.getCommand("scene ns"), 10000L, true);
 
         return 1;
 
@@ -867,6 +883,8 @@ public class CommandManager {
     int completionsCommand(JSONObject commandObject) {
         run.timer.stop();
         run.autoUpdate.stop();
+
+        Main.seedDone = true;
 
         int value = commandObject.getInt("value");
 

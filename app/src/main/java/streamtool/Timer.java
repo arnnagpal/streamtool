@@ -39,7 +39,12 @@ public class Timer {
 
                 }
                 if (!endMessage.equals("none")) client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetInputSettings\", \"requestId\": \"0\", \"requestData\": {\"inputName\": \"" + sourceName + "\", \"overlay\": true, \"inputSettings\": {\"text\":\"" + endMessage + "\"}}}}");
-                if (time < duration) System.out.println("Timer stopped");
+                if (time < duration) {
+                    Main.seedDone = true;
+                    System.out.println("Timer stopped");
+                    System.out.println();
+                    System.out.print("> ");
+                }
             }      
         };
     }

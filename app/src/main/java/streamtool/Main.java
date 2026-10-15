@@ -25,6 +25,8 @@ public class Main {
     static Long abDelay = 0L;
     static boolean top = true;
 
+    static boolean seedDone = false;
+
     public static void main(String[] args) throws URISyntaxException, InterruptedException, IOException {
 
         Files.createDirectories(Paths.get("lb_data", "matches"));

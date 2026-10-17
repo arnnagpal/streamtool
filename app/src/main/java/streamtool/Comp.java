@@ -50,7 +50,6 @@ public class Comp {
         JSONObject o = Api.readJSON(file);
         if (needData) o = (JSONObject) o.get("data");
         JSONArray comp = (JSONArray) o.get(compKey);
-        JSONArray players = (JSONArray) o.get("players");
 
         for (int i = 0; i < comp.length(); i++) {
             JSONObject pl3 = (JSONObject) comp.get(i);

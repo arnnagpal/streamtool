@@ -123,7 +123,7 @@ public class Leaderboard {
             // remove completions from players who are not registered
             for (int i2 = 0; i2 < comp.length(); i2++) {
                 JSONObject pl3 = (JSONObject) comp.get(i2);
-                if (!Comp.isRegistered(Comp.getName((String) pl3.get(uuidKey), players), regList)) {
+                if (data.getName(pl3.getString(uuidKey)) == null) {
                     comp.remove(i2);
                     i2--;
                 }
@@ -132,7 +132,7 @@ public class Leaderboard {
             // add points to players
             for (int num = 0; num < comp.length(); num++) {
                 JSONObject pl = (JSONObject) comp.get(num);
-                Player player = data.getPlayer(Comp.getName((String) pl.get(uuidKey), players));
+                Player player = data.getPlayer(data.getName(pl.getString(uuidKey)));
                 int points = 0;
                 if (num == 0) points += 5;
                 if (num == 1) points += 3;

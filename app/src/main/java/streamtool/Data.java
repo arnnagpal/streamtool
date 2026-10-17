@@ -775,6 +775,8 @@ public class Data {
 
     String getName(String uuid) {
         for (int i = 0; i < players.length; i++) {
+            if (players[i].uuid == null) players[i].uuid = Api.getUuid(players[i].name);
+
             if (players[i].uuid != null && players[i].uuid.equals(uuid)) return players[i].name;
         }
 

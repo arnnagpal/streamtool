@@ -54,8 +54,10 @@ public class Comp {
 
         for (int i = 0; i < comp.length(); i++) {
             JSONObject pl3 = (JSONObject) comp.get(i);
-            if (!isRegistered(getName((String) pl3.get(uuidKey), players), regPlayers)) {
-                System.out.println("Removed " + getName((String) pl3.get(uuidKey), players));
+            String uuid = pl3.getString(uuidKey);
+            String name = data.getName(uuid);
+            if (name == null) {
+                System.out.println("Removed " + uuid);
                 comp.remove(i);
                 i--;
             }
@@ -85,7 +87,7 @@ public class Comp {
             if (i == 2) points += 1;
             if (points <= 0) points = 1;
             String pointString = "" + points;
-            String name = getName(uuid, players);
+            String name = data.getName(uuid);
 
             JSONObject co = new JSONObject();
 
@@ -111,19 +113,6 @@ public class Comp {
         } catch (IOException e) {}
 
         return returnData;
-    }
-
-    public static String getName(String uuid, JSONArray players) {
-        String output = "";
-
-        for (int i = 0; i < players.length(); i++) {
-            JSONObject pl = (JSONObject) players.get(i);
-            String match = (String) pl.get("uuid");
-            if (uuid.equals(match)) output = (String) pl.get("nickname");
-        }
-
-        return output;
-
     }
 
     public static boolean isRegistered(String name, Player[] regPlayers) {

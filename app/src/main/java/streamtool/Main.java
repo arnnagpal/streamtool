@@ -408,6 +408,9 @@ class Player {
             if (Api.updateSkin(name)) Api.dlSkin(name);
             Api.getHead(name, headsize, false);
         } catch (Exception e) {}
+
+        String playerUuid = Api.getUuid(name);
+        if (playerUuid != null) uuid = playerUuid;
     }
 }
 

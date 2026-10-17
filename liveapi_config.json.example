@@ -1,0 +1,6 @@
+{
+	"enabled": false,
+	"username": "INSERT_IGN",
+	"privateKey": "INSERT_KEY",
+	"updateInterval": 1250
+}

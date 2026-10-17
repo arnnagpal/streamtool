@@ -946,6 +946,10 @@ public class CommandManager {
             case 0:
                 if (msg) System.out.println("Updating by splits");
 
+                if (data.useLiveApi) {
+                    Api.getLiveData(data.apiUser, data.apiKey);
+                }
+
                 if (run.mostPercent) {
                     if (Main.top) {
                         povs = data.topAdv();

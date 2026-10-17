@@ -41,6 +41,10 @@ public class Main {
 
         run.obsLayout = Api.readJSON(Paths.get("obs_layout.json").toFile());
 
+        JSONObject liveApiConfig = Api.readJSON(Paths.get("liveapi_config.json").toFile());
+
+        run.updateInterval = run.obsLayout.optLong("updateInterval", 1000L);
+
         run.portRange = run.obsLayout.getInt("portRange"); // ports for streamlink feeds, they are this value + playerId
         run.scenes = (JSONObject) run.obsLayout.get("scenes");
         run.audio = (JSONObject) run.obsLayout.get("audio");
@@ -70,7 +74,14 @@ public class Main {
 
         run.client.send("{\"op\": 1, \"d\": {\"rpcVersion\": 1, \"eventSubscriptions\": 0}}");
 
-        Data data = new Data(run.mostPercent);
+        Data data;
+
+        if (liveApiConfig != null && liveApiConfig.getBoolean("enabled")) {
+            data = new Data(run.mostPercent, liveApiConfig.getString("privateKey"), liveApiConfig.getString("username"));
+            run.updateInterval = liveApiConfig.optLong("updateInterval", 1000L);
+        } else {
+            data = new Data(run.mostPercent);
+        }
 
         if (run.mostPercent) run.mp = new MostPercentLeaderboard(data, 5);
 
@@ -452,6 +463,8 @@ class RuntimeData {
 
     ClientHandler client;
     FileSelect fs;
+
+    Long updateInterval;
 
     int[] matchIds = new int[0];
     public AutoUpdate autoUpdate;

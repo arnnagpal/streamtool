@@ -16,6 +16,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -527,6 +530,66 @@ public class Api {
 
         // Return matrix parameters mapped to standard Java AffineTransform arguments
         return new AffineTransform(m00, m10, m01, m11, m02, m12);
+    }
+
+    public static void getLiveData(String username, String key) {
+        String target = "https://api.mcsrranked.com/users/" + username + "/live";
+        StringBuilder response = new StringBuilder();
+        try {
+            URI uri = new URI(target);
+            HttpsURLConnection conn = (HttpsURLConnection) uri.toURL().openConnection();
+            
+            conn.setRequestProperty("Private-Key", key);
+
+            int code = conn.getResponseCode();
+            InputStream is;
+
+            if (code >= 400) is = conn.getErrorStream(); else is = conn.getInputStream();
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error downloading live data");
+            e.printStackTrace();
+            return;
+        }
+
+        JSONObject d;
+
+        try {
+            d = new JSONObject(response.toString());
+        } catch (JSONException e) {
+            System.out.println("Invalid json");
+            return;
+        }
+
+        String status = d.optString("status", "fail");
+        if (!status.equals("success")) {
+            System.out.println("Request failed");
+            System.out.println(d.toString());
+            return;
+        }
+
+        JSONObject data = d.getJSONObject("data");
+
+        JSONObject out = new JSONObject();
+
+        out.put("players", data.getJSONArray("players"));
+        out.put("timelines", data.getJSONArray("timelines"));
+        out.put("completes", data.getJSONArray("completions"));
+
+        File outFile = Paths.get("live_data.json").toFile();
+
+        try {
+            BufferedWriter w = new BufferedWriter(new FileWriter(outFile));
+            w.write(out.toString());
+            w.close();
+        } catch (IOException e) {}
     }
 
     public static JSONObject readJSON(File file) {

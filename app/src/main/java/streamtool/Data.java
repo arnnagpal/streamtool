@@ -26,6 +26,10 @@ public class Data {
     int currentSeed = 0;
     int headsize = 100;
 
+    boolean useLiveApi = false;
+    String apiKey = "";
+    String apiUser = "";
+
     enum SplitType {
         nether,
         bastion,
@@ -507,6 +511,13 @@ public class Data {
         if (mostPercent) headsize = 130;
     }
 
+    public Data(boolean mostPercent, String apiKey, String apiUser) {
+        this(mostPercent);
+        this.useLiveApi = true;
+        this.apiKey = apiKey;
+        this.apiUser = apiUser;
+    }
+
     void clearPlayers() {
         players = new Player[0];
     }
@@ -592,7 +603,10 @@ public class Data {
     }
 
     void updateSplits() throws Exception {
-        JSONObject spectate = Api.readJSON(Paths.get("spectate_match.json").toFile());
+        String path;
+        if (useLiveApi) path = "live_data.json"; else path = "spectate_match.json";
+
+        JSONObject spectate = Api.readJSON(Paths.get(path).toFile());
 
         if (spectate == null) throw new Exception();
 
@@ -608,7 +622,10 @@ public class Data {
     }
 
     void updateAdv() throws Exception {
-        JSONObject spectate = Api.readJSON(Paths.get("spectate_match.json").toFile());
+        String path;
+        if (useLiveApi) path = "live_data.json"; else path = "spectate_match.json";
+
+        JSONObject spectate = Api.readJSON(Paths.get(path).toFile());
 
         if (spectate == null) throw new Exception();
 

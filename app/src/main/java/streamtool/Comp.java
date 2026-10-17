@@ -37,7 +37,13 @@ public class Comp {
             compKey = "completions";
             uuidKey = "uuid";
             needData = true;
-        } else file = Paths.get("spectate_match.json").toFile();
+        } else {
+            if (data.useLiveApi) {
+                file = Paths.get("live_data.json").toFile();
+            } else {
+                file = Paths.get("spectate_match.json").toFile();
+            }
+        }
 
         if (!file.exists()) return null;
 

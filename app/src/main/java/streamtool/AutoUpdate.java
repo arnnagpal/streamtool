@@ -21,7 +21,7 @@ public class AutoUpdate {
                     }
 
                     try {
-                        sleep(1000);
+                        sleep(run.updateInterval);
                     } catch (InterruptedException e) {}
 
                     if (!run.timer.isRunning) isRunning = false;

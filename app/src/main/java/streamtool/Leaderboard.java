@@ -283,6 +283,8 @@ public class Leaderboard {
             Player player = data.getPlayer(name);
             ArrayList<Double> history = new ArrayList<>();
 
+            String weeks = "";
+
             if (player != null) {
                 int j = 2;
                 for (int i2 = player.history.length() - 1; i2 >= 0; i2--) {
@@ -303,11 +305,18 @@ public class Leaderboard {
 
             Double sum = current;
 
+            weeks = div + "w";
+
             if (initial) {
                 sum = 0.0;
                 div--;
 
-                if (div == 0) div = 1;
+                weeks = div + "w";
+
+                if (div == 0) {
+                    weeks = "";
+                    div = 1;
+                }
             }
 
             for (int i2 = 0; i2 < history.size(); i2++) {
@@ -318,6 +327,7 @@ public class Leaderboard {
 
             if (!initial && i == 0) {
                 sum = 100.0;
+                weeks = "";
             }
 
             DecimalFormat formatter = new DecimalFormat("#0.0", DecimalFormatSymbols.getInstance( Locale.ENGLISH ));
@@ -326,6 +336,7 @@ public class Leaderboard {
 
             o.put("sum", sum);
             o.put("perfMulti", perfMulti);
+            o.put("weeks", weeks);
 
             avgBoard.add(o);
         }
@@ -337,6 +348,20 @@ public class Leaderboard {
 
                 if (d1 > d2) return -1;
                 if (d2 > d1) return 1;
+
+                int w1 = 0; int w2 = 0;
+
+                if (a.optString("weeks", "").equals("1w")) w1 = 1;
+                if (a.optString("weeks", "").equals("2w")) w1 = 2;
+                if (a.optString("weeks", "").equals("3w")) w1 = 3;
+                if (b.optString("weeks", "").equals("1w")) w2 = 1;
+                if (b.optString("weeks", "").equals("2w")) w2 = 2;
+                if (b.optString("weeks", "").equals("3w")) w2 = 3;
+
+                if (w1 > w2) return -1;
+                if (w2 > w1) return 1;
+
+
                 return 0;
             }
         });

@@ -583,9 +583,17 @@ public class Api {
 
         JSONObject out = new JSONObject();
 
+        JSONArray completes = data.getJSONArray("completions");
+
+        for (int i = 0; i < completes.length(); i++) {
+            JSONObject o = completes.getJSONObject(i);
+            o.put("player", o.get("uuid"));
+            completes.put(i, o);
+        }
+
         out.put("players", data.getJSONArray("players"));
         out.put("timelines", data.getJSONArray("timelines"));
-        out.put("completes", data.getJSONArray("completions"));
+        out.put("completes", completes);
 
         File outFile = Paths.get("live_data.json").toFile();
 

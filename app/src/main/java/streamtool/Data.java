@@ -144,6 +144,7 @@ public class Data {
         try {
             updateSplits();
         } catch (Exception e) {
+            System.out.println("Error updating splits");
             return new String[0];
         }
 
@@ -682,23 +683,8 @@ public class Data {
     }
 
     void loadSplits(JSONArray timelines) {
-        if (Main.top) {
-            for (int i = 0; i < timelines.length(); i++) {
-                JSONObject ss = (JSONObject) timelines.get(i);
-                Data.SplitType type = ident(ss);
-                String uuid = ss.getString("uuid");
-                int time = ss.getInt("time");
 
-                String name = getName(uuid);
-
-                Split split = new Split(name, time);
-
-                if (type != Data.SplitType.other) {
-                    addSplit(type, split);
-                }
-            }
-        } else {
-            // READ TIMELINE IN REVERSE IF THAT'S SELECTED
+        if (useLiveApi) {
             for (int i = timelines.length() - 1; i >= 0; i--) {
                 JSONObject ss = (JSONObject) timelines.get(i);
                 Data.SplitType type = ident(ss);
@@ -712,6 +698,23 @@ public class Data {
                 if (type != Data.SplitType.other) {
                     addSplit(type, split);
                 }
+            }
+
+            return;
+        }
+
+        for (int i = 0; i < timelines.length(); i++) {
+            JSONObject ss = (JSONObject) timelines.get(i);
+            Data.SplitType type = ident(ss);
+            String uuid = ss.getString("uuid");
+            int time = ss.getInt("time");
+
+            String name = getName(uuid);
+
+            Split split = new Split(name, time);
+
+            if (type != Data.SplitType.other) {
+                addSplit(type, split);
             }
         }
     }

@@ -602,6 +602,7 @@ public class CommandManager {
             case "update":
                 int pov_count2 = commandObject.getInt("var");
                 if (run.mainspec) {
+                    if (pov_count2 > 3) pov_count2 = 3;
                     run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gsScenes")).get("gs" + pov_count2) + "\"}}}");
                 } else {
                     run.client.send("{\"op\": 6, \"d\": {\"requestType\": \"SetCurrentProgramScene\", \"requestId\": \"0\", \"requestData\": {\"sceneName\": \"" + ((JSONObject) run.scenes.get("gameplayScenes")).get("gameplay" + pov_count2) + "\"}}}");

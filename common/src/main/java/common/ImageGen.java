@@ -169,7 +169,7 @@ public class ImageGen {
             int height = width/5;
             int margin = width/60;
 
-            BufferedImage head = Api.getHead(name, height - (margin * 2));
+            BufferedImage head = Api.getHead(name, height - (margin * 2), true);
 
             int fontsize = (height - (margin * 3)) / 2;
             int namesize = fontsize;
@@ -273,7 +273,7 @@ public class ImageGen {
             int height = width/5;
             int margin = width/60;
 
-            BufferedImage head = Api.getHead(name, height - (margin * 2));
+            BufferedImage head = Api.getHead(name, height - (margin * 2), true);
 
             int fontsize = (height - (margin * 3)) / 2;
             int namesize = fontsize;
@@ -381,7 +381,7 @@ public class ImageGen {
             int height = width/5;
             int margin = width/60;
 
-            BufferedImage head = Api.getHead(name, height - (margin * 2));
+            BufferedImage head = Api.getHead(name, height - (margin * 2), true);
 
             int fontsize = (height - (margin * 3)) / 2;
             int namesize = fontsize;

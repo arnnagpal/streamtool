@@ -28,7 +28,7 @@ public class Test {
             size = Integer.parseInt(args[1]);
         }
 
-        Api.getHead(args[0], size);
+        Api.getHead(args[0], size, true);
 
         // Thread.sleep(1000);
         //h.close();

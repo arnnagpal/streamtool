@@ -297,19 +297,19 @@ public class Api {
     }
 
     public static BufferedImage getHead(String username) {
-        return getHead(username, 256);
+        return getHead(username, 256, false);
     }
 
-    public static BufferedImage getHead(String username, int size) {
+    public static BufferedImage getHead(String username, int size, boolean nofile) {
         try {
-            return getHeadEx(username, size, false);
+            return getHeadEx(username, size, false, nofile);
         } catch (IOException e) {
             System.out.println("IOException");
             return null;
         }
     }
 
-    private static BufferedImage getHeadEx(String username, int size, boolean threedim) throws IOException {
+    private static BufferedImage getHeadEx(String username, int size, boolean threedim, boolean nofile) throws IOException {
 
         if (size > 8092) {
             System.out.println("Max size: 8092");
@@ -367,8 +367,10 @@ public class Api {
 
             gr.dispose();
 
-            File headScaledPng = Paths.get("heads", username + "-2d.png").toFile();
-            ImageIO.write(headScaled, "png", headScaledPng);
+            if (!nofile) {
+                File headScaledPng = Paths.get("heads", username + "-2d.png").toFile();
+                ImageIO.write(headScaled, "png", headScaledPng);
+            }
 
             return headScaled;
         }
@@ -438,8 +440,10 @@ public class Api {
 
         // WRITE TO FILE
 
-        File warpComb = Paths.get("heads", username + "-3d.png").toFile();
-        ImageIO.write(combinedImage, "png", warpComb);
+        if (!nofile) {
+            File warpComb = Paths.get("heads", username + "-3d.png").toFile();
+            ImageIO.write(combinedImage, "png", warpComb);
+        }
 
         return combinedImage;
     }

@@ -406,7 +406,7 @@ class Player {
 
         try {
             if (Api.updateSkin(name)) Api.dlSkin(name);
-            Api.getHead(name, headsize);
+            Api.getHead(name, headsize, false);
         } catch (Exception e) {}
     }
 }

@@ -196,7 +196,7 @@ class Block {
 
         int headSize = u1 - (m1 * 2);
 
-        BufferedImage head = Api.getHead(username, headSize);
+        BufferedImage head = Api.getHead(username, headSize, true);
 
         g.drawImage(head, m1, m1, null);
 

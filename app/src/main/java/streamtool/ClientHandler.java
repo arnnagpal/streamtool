@@ -59,7 +59,7 @@ public class ClientHandler {
         if (run.mostPercent) headSize = 130;
 
         try {
-            Api.getHead(player.name, headSize);
+            Api.getHead(player.name, headSize, false);
         } catch (Exception e) {}
         
         if (allowReplace) {
@@ -109,7 +109,7 @@ public class ClientHandler {
         if (run.mostPercent) headSize = 130;
 
         try {
-            Api.getHead(player.name, headSize);
+            Api.getHead(player.name, headSize, false);
         } catch (Exception e) {}
 
         String twitch = player.twitch;

@@ -677,18 +677,36 @@ public class Data {
     }
 
     void loadSplits(JSONArray timelines) {
-        for (int i = 0; i < timelines.length(); i++) {
-            JSONObject ss = (JSONObject) timelines.get(i);
-            Data.SplitType type = ident(ss);
-            String uuid = ss.getString("uuid");
-            int time = ss.getInt("time");
+        if (Main.top) {
+            for (int i = 0; i < timelines.length(); i++) {
+                JSONObject ss = (JSONObject) timelines.get(i);
+                Data.SplitType type = ident(ss);
+                String uuid = ss.getString("uuid");
+                int time = ss.getInt("time");
 
-            String name = getName(uuid);
+                String name = getName(uuid);
 
-            Split split = new Split(name, time);
+                Split split = new Split(name, time);
 
-            if (type != Data.SplitType.other) {
-                addSplit(type, split);
+                if (type != Data.SplitType.other) {
+                    addSplit(type, split);
+                }
+            }
+        } else {
+            // READ TIMELINE IN REVERSE IF THAT'S SELECTED
+            for (int i = timelines.length() - 1; i >= 0; i--) {
+                JSONObject ss = (JSONObject) timelines.get(i);
+                Data.SplitType type = ident(ss);
+                String uuid = ss.getString("uuid");
+                int time = ss.getInt("time");
+
+                String name = getName(uuid);
+
+                Split split = new Split(name, time);
+
+                if (type != Data.SplitType.other) {
+                    addSplit(type, split);
+                }
             }
         }
     }

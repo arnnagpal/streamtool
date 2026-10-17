@@ -74,13 +74,13 @@ public class Main {
 
         run.client.send("{\"op\": 1, \"d\": {\"rpcVersion\": 1, \"eventSubscriptions\": 0}}");
 
-        Data data;
+        Data data = new Data(run.mostPercent);
 
         if (liveApiConfig != null && liveApiConfig.getBoolean("enabled")) {
-            data = new Data(run.mostPercent, liveApiConfig.getString("privateKey"), liveApiConfig.getString("username"));
-            run.updateInterval = liveApiConfig.optLong("updateInterval", 1000L);
+            data.enableLiveApi(liveApiConfig.getString("privateKey"), liveApiConfig.getString("username"));
+            run.updateInterval = liveApiConfig.optLong("updateInterval", 1250L);
         } else {
-            data = new Data(run.mostPercent);
+            data.disableLiveApi();
         }
 
         if (run.mostPercent) run.mp = new MostPercentLeaderboard(data, 5);

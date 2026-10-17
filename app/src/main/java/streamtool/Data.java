@@ -30,6 +30,18 @@ public class Data {
     String apiKey = "";
     String apiUser = "";
 
+    void enableLiveApi(String key, String user) {
+        useLiveApi = true;
+        apiKey = key;
+        apiUser = user;
+    }
+
+    void disableLiveApi() {
+        useLiveApi = false;
+        apiKey = "";
+        apiUser = "";
+    }
+
     enum SplitType {
         nether,
         bastion,
@@ -509,13 +521,6 @@ public class Data {
     public Data(boolean mostPercent) {
         this();
         if (mostPercent) headsize = 130;
-    }
-
-    public Data(boolean mostPercent, String apiKey, String apiUser) {
-        this(mostPercent);
-        this.useLiveApi = true;
-        this.apiKey = apiKey;
-        this.apiUser = apiUser;
     }
 
     void clearPlayers() {

@@ -230,6 +230,11 @@ public class CommandManager {
 
         run.obsLayout = Api.readJSON(Paths.get("obs_layout.json").toFile());
 
+        if (run.obsLayout == null) {
+            System.out.println("Layout is null, this may be due to invalid json");
+            return 0;
+        }
+
         run.scenes = (JSONObject) run.obsLayout.get("scenes");
         run.audio = (JSONObject) run.obsLayout.get("audio");
         run.paths = (JSONObject) run.obsLayout.get("paths");
@@ -239,6 +244,20 @@ public class CommandManager {
         run.seedimagePath = (String) run.paths.get("seed_images");
 
         Main.abDelay = run.obsLayout.optLong("switchDelay", 0L);
+
+        run.updateInterval = run.obsLayout.optLong("updateInterval", 1000L);
+
+        JSONObject liveApiConfig = Api.readJSON(Paths.get("liveapi_config.json").toFile());
+
+        if (liveApiConfig != null && liveApiConfig.optBoolean("enabled", false)) {
+            String key = liveApiConfig.optString("privateKey", null);
+            String user = liveApiConfig.optString("username", null);
+
+            if (key != null && user != null) {
+                data.enableLiveApi(key, user);
+                run.updateInterval = liveApiConfig.optLong("updateInterval", 1250L);
+            } else data.disableLiveApi();
+        } else data.disableLiveApi();
     
         return 1;
     }

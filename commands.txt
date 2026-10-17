@@ -104,6 +104,12 @@ unhides all hidden players.
 > reload
 reload obs configuration file.
 
+> showtop (true|false)
+loads timeline in reverse order if set to false
+
+> mainspec (true|false)
+replace the 4th pov on main screen with a spectator cam.
+
 > override {
 	promotions|demotions|lb1|lb2|points value		// override a specific value for leaderboard gen and display
 	reset							// reset overrides

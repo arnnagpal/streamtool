@@ -31,8 +31,7 @@ switching from intermission at the start:
 > order show		// show the seed order.
 
 when ready to start the seed:
-> next			// increment the current seed, show the next seed type in the order.
-> scene ns		// show the seed type on its own scene
+> next			// increment the current seed. show the next seed type in the order. automatically switches to the dedicated seed type scene after 5 seconds.
 > update		// switch to main screen when loaded in and update the top 4 people who are playing. this is initially done by the order they appear in the reg list, and later by points.
 > start			// start the timer for the seed. enable auto-update.
 
@@ -76,10 +75,30 @@ interview and ending stream:
 > interview player	// switch to interview. (if you have one)
 > scene co		// switch back to commentators. say goodbye. end stream on obs.
 
+WHEN THINGS GO WRONG:
+
+for the lb command to work, you must have the seed number set correctly and you must have downloaded all the match data.
+if you skip showing the leaderboard it will break when you try to do it for a later seed. this is because it's missing a seed in the middle.
+so if you want the leaderboard after seed 4 for example, the seed must be set to 4 internally and seeds 1, 2 and 3 must be imported.
+the command will try to download the current seed automatically if the others are imported.
+
+to set seed number, clear data and import a seed manually:
+> setseed <seedNumber>
+> match clear
+> match dl <seedNumber> <matchId>
+
+for example, to clear the data and show lb after seed 4 (assuming 4 is the latest match played on the account, if not, you can also import it manually)
+> setseed 4
+> match clear
+> match dl 1 <id>
+> match dl 2 <id>
+> match dl 3 <id>
+> lb
+
 if there's an incorrect seed and you're just moving to the next seed on the list:
 > order skip		// moves the current seed type to the end of the order.
 > order			// see if the new order is correct.
 > scene ns		// switch back to next seed scene without incrementing the seed number, which should show the correct seed type.
 > setseed seedNumber	// in case the seed number is wrong, you can change that. then just reload the ns scene.
 > order api		// if you mess things up and want the original order back.
-// if this doesn't work, just move the seed to the end on the website and download the order again with order api
+// if this doesn't work, just move the seed to the end on the website and download the order again with order api. or you can just ignore it and accept that it's wrong. this is not a very user-friendly design.

@@ -96,6 +96,8 @@ public class Main {
         run.autoUpdate = new AutoUpdate(run);
         run.timer = new Timer(run);
 
+        Perch.start(run, data);
+
         while(!run.stop) {
 
             if (run.needSave) {

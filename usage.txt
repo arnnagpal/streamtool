@@ -1,6 +1,7 @@
 start obs. if you want fullscreen preview projector on wayland run it in xcb mode. the side effect is that obs will sometimes just freeze when you're interacting with it. that's fine as long as you don't need to change any settings. scene switching is handled by this program. all you should have to do in obs is press go live.
 run this program with java. there's a bit of delay at the start to make sure websocket is connected.
 on discord, in the league-specific channel, type /list and download the file.
+for the perch timer, download the private room presets zip for the week and put it in the folder you run the program from, named presets.zip. when the program starts it says if the perch timer is on.
 
 if the program crashes, you can use this command to restore the player and seed data.
 > restore
@@ -34,6 +35,8 @@ when ready to start the seed:
 > next			// increment the current seed. show the next seed type in the order. automatically switches to the dedicated seed type scene after 5 seconds.
 > update		// switch to main screen when loaded in and update the top 4 people who are playing. this is initially done by the order they appear in the reg list, and later by points.
 > start			// start the timer for the seed. enable auto-update.
+
+the perch timer follows the seed number, so next and setseed switch it to the right preset. it shows up on each pov by itself during the seed, you don't need to do anything.
 
 if the timer is out of sync
 > timer add seconds		// move timer forward by a number of seconds. also accepts negative numbers if you want to go back.

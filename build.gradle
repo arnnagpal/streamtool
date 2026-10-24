@@ -48,6 +48,7 @@ project(':common') {
 project(':app') {
     repositories {
         mavenCentral()
+        maven { url 'https://forgejo.arnagpal.dev/api/packages/aryan/maven' }
     }
 
     sourceSets {
@@ -63,6 +64,7 @@ project(':app') {
         implementation 'org.json:json:20260814'
         implementation 'org.java-websocket:Java-WebSocket:1.6.0'
         implementation project(':common')
+        implementation 'dev.arnagpal:perch-timer:0.1.2'
     }
 
     application {
